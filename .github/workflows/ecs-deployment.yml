@@ -19,7 +19,7 @@ env:
   REGISTRY: 249899229305.dkr.ecr.ap-southeast-1.amazonaws.com
 
 jobs:
-  deploy:
+  ecs-deployment:
     runs-on: ubuntu-latest
 
     steps:
@@ -78,7 +78,7 @@ jobs:
         env:
           REGISTRY: ${{ env.REGISTRY }}
           IMAGE_TAG: ${{ github.sha }}
-          ECS_CONTAINER_NAME: ${{ env.ECS_CONTAINER_NAME}}
+          ECS_CONTAINER_NAME: bff-client
         run: |
           jq \
             --arg IMAGE "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
