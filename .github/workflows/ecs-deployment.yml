@@ -1,4 +1,4 @@
-name: BFF push image to ECR - Deploy to ECS
+name: ECS Deployment Workflow
 
 on:
   push:
@@ -82,6 +82,7 @@ jobs:
         run: |
           jq \
             --arg IMAGE "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            --arg ECS_CONTAINER_NAME "$ECS_CONTAINER_NAME" \
             '(.containerDefinitions[] | select(.name == $ECS_CONTAINER_NAME)).image = $IMAGE' \
             task-definition.json > task-definition-rendered.json
 
