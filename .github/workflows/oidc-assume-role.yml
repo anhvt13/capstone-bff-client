@@ -24,3 +24,17 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        env:
+          REGISTRY: 249899229305.dkr.ecr.ap-southeast-1.amazonaws.com
+          IMAGE_TAG: oidc-test
+        run: |
+          docker build -t $REGISTRY/capstone/bff-client:$IMAGE_TAG .
+
+      - name: Push Docker image
+        env:
+          REGISTRY: 249899229305.dkr.ecr.ap-southeast-1.amazonaws.com
+          IMAGE_TAG: oidc-test
+        run: |
+          docker push $REGISTRY/capstone/bff-client:$IMAGE_TAG
