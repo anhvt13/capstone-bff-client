@@ -18,8 +18,10 @@ env:
   ECS_CONTAINER_NAME: bff-client
   REGISTRY: 249899229305.dkr.ecr.ap-southeast-1.amazonaws.com
 
+# ECS Deployment Jobs
 jobs:
   ecs-deployment:
+
     # Generally start with x86/AMD64 GitHub runner
     runs-on: ubuntu-latest
 
@@ -40,19 +42,21 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
+      # Uses: Purpose-built GitHub Action
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build and Push Docker image to ECR
-        env:
-          REGISTRY: ${{ env.REGISTRY }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker buildx build \
-            --platform linux/arm64 \
-            -t $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --push .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+      # Run: Direct AWS CLI operation - NO Github action purpose-built on describe task definition operation
       - name: Get current ECS task definition
         run: |
           aws ecs describe-task-definition \
@@ -60,32 +64,13 @@ jobs:
             --query 'taskDefinition' \
             --output json > task-definition.json
 
-      - name: Remove metadata from current task definition
-        run: |
-          jq 'del(
-            .taskDefinitionArn,
-            .revision,
-            .status,
-            .requiresAttributes,
-            .compatibilities,
-            .registeredAt,
-            .registeredBy
-          )' \
-          task-definition.json > task-definition-clean.json
-
-          mv task-definition-clean.json task-definition.json
-
-      - name: Update container image
-        env:
-          REGISTRY: ${{ env.REGISTRY }}
-          IMAGE_TAG: ${{ github.sha }}
-          ECS_CONTAINER_NAME: bff-client
-        run: |
-          jq \
-            --arg IMAGE "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
-            --arg ECS_CONTAINER_NAME "$ECS_CONTAINER_NAME" \
-            '(.containerDefinitions[] | select(.name == $ECS_CONTAINER_NAME)).image = $IMAGE' \
-            task-definition.json > task-definition-rendered.json
+      - name: Render a new task definition according new image
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        id: render-task-definition
+        with:
+          task-definition: task-definition.json
+          container-name: bff-client
+          image: ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
