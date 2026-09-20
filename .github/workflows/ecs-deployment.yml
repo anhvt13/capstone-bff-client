@@ -20,7 +20,11 @@ env:
 
 jobs:
   ecs-deployment:
-    runs-on: ubuntu-latest
+    # Generally start with x86_64/AMD64 GitHub runner
+    # runs-on: ubuntu-latest
+
+    #Explicit start with ARM64 Github runner
+    runs-on: ubuntu-24:04-arm
 
     steps:
       - name: Checkout repository
@@ -43,8 +47,7 @@ jobs:
           docker buildx build \
             --platform linux/arm64 \
             -t $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --push \
-            .
+            --push .
 
       - name: Get current ECS task definition
         run: |
