@@ -20,11 +20,8 @@ env:
 
 jobs:
   ecs-deployment:
-    # Generally start with x86_64/AMD64 GitHub runner
-    # runs-on: ubuntu-latest
-
-    #Explicit start with ARM64 Github runner
-    runs-on: ubuntu-24:04-arm
+    # Generally start with x86/AMD64 GitHub runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -38,6 +35,13 @@ jobs:
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+      # Allows x86 Github runner to execute ARM64 binaries
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and Push Docker image to ECR
         env:
