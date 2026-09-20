@@ -64,7 +64,7 @@ jobs:
             --query 'taskDefinition' \
             --output json > task-definition.json
 
-      - name: Render a new task definition according new image
+      - name: Render a new task definition embedded new image tagged
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         id: render-task-definition
         with:
@@ -79,3 +79,4 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+          wait-max-delay-seconds: 15
