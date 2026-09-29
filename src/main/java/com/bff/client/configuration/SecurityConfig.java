@@ -20,7 +20,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/home")
+                        .requestMatchers("/home", "/actuator/health")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
