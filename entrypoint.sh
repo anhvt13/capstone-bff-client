@@ -54,7 +54,7 @@ if [ -f "$TRUSTSTORE_PATH" ]; then
 # ECS/Fargate: create certificate from Secrets Manager
 elif [ -n "$BFF_TRUSTSTORE_BASE64" ]; then
     echo "Creating truststore from Secrets Manager..."
-    mkdir -p /certs/driver
+    mkdir -p /certs/bff
     printf '%s' "$BFF_TRUSTSTORE_BASE64" | base64 -d > "$TRUSTSTORE_PATH"
 else
     echo "ERROR: No truststore file found and BFF_TRUSTSTORE_BASE64 is not set."
