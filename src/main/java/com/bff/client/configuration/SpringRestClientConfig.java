@@ -12,13 +12,13 @@ import org.springframework.web.client.RestClient;
 
 //TODO: Default profile to leverage Eureka service discovery/routes managed by Spring Cloud
 @Configuration
-@Profile("local")
+@Profile({"local", "docker"})
 public class SpringRestClientConfig {
 
     private static final Logger log = LoggerFactory.getLogger(SpringRestClientConfig.class);
 
     //TODO: Initialize non-balancer client for Eureka internal to query service discovery
-    // Reuse load-balance client would trigger a lookup and recurse indefinitely.
+    // Reuse @LoadBalanced rest client would trigger a lookup and recurse indefinitely.
     @Bean
     @Primary
     public RestClient.Builder restClientBuilder() {

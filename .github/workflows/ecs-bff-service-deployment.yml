@@ -1,4 +1,4 @@
-name: ECS Deployment Workflow
+name: ECS BFF Service Deployment
 
 on:
   push:
@@ -18,9 +18,9 @@ env:
   ECS_CONTAINER_NAME: bff-client
   REGISTRY: 249899229305.dkr.ecr.ap-southeast-1.amazonaws.com
 
-# ECS Deployment Jobs
+# ECS BFF Service Deployment Jobs
 jobs:
-  ecs-deployment:
+  ecs-bff-service-deployment:
 
     # Generally start with x86/AMD64 GitHub runner
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      # Uses: Purpose-built GitHub Action
+      # Uses: GitHub-action pre-build package
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -56,7 +56,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Run: Direct AWS CLI operation - NO Github action purpose-built on describe task definition operation
+      # Run: executes raw AWS cli - NO Github action pre-built support on describe task definition operation
       - name: Get current ECS task definition
         run: |
           aws ecs describe-task-definition \
