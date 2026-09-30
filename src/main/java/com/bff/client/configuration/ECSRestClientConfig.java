@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
 
 import java.net.InetAddress;
 
-//TODO: "ecs" profile to leverage discovers/routes to ECS service managed by AWS
+//TODO: "ecs" profile to leverage ECS service discover - routing managed by AWS
 @Configuration
 @Profile("ecs")
 public class ECSRestClientConfig {
