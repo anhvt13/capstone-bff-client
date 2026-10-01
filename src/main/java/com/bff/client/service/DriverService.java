@@ -22,12 +22,13 @@ import static org.springframework.security.oauth2.client.web.client.RequestAttri
 @Service
 public class DriverService {
 
-    //TODO: Loaded OAuth2 Client Registration Id in application properties
+    //TODO: Loaded driver-service as OAuth2 Client Registration Id in application properties
     public static final String DRIVER_SERVICE_CLIENT = "driver-service";
 
     @Value("${driver.service.base-url}")
     public String DRIVER_SERVICE_BASE_URL;
 
+    //TODO: Explicit the rest client builder SSL handshake + Spring load balanced configured
     @Autowired
     @Qualifier("driverRestClientBuilder")
     private RestClient.Builder driverRestClientBuilder;
