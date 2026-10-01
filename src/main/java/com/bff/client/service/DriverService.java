@@ -8,12 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
+import java.util.Map;
 
 import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
 
@@ -117,7 +119,7 @@ public class DriverService {
                 .toBodilessEntity();
     }
 
-    public String checkServiceHealth() {
+    public ResponseEntity<Map<String, Object>> checkServiceHealth() {
         String uriString = new StringBuilder()
                 .append(DRIVER_SERVICE_BASE_URL)
                 .append("/actuator/health")
@@ -133,6 +135,6 @@ public class DriverService {
                 .uri(uri)
                 .attributes(clientRegistrationId(DRIVER_SERVICE_CLIENT))
                 .retrieve()
-                .body(String.class);
+                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});
     }
 }
