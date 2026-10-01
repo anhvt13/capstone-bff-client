@@ -10,6 +10,8 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -26,9 +28,11 @@ import org.springframework.web.client.RestClient;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 @Component
 public class RestClientFactory {
@@ -48,6 +52,8 @@ public class RestClientFactory {
     @Value("${truststore.path}")
     private String trustStorePath;
 
+    private static final Logger log = LoggerFactory.getLogger(RestClientFactory.class);
+
     public RestClient.Builder createSecuredRestClient(OAuth2AuthorizedClientManager authorizedClientManager) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException, UnrecoverableKeyException {
 
         //TODO: LOAD TRUSTSTORE - This is the CA that signed driver-service's certificate.
@@ -61,10 +67,14 @@ public class RestClientFactory {
         TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
 
         /* * Diagnostic: show exactly what Java trusts. */
+        X509ExtendedTrustManager originalTrustManager = null;
         for (TrustManager trustManager : trustManagers) {
-            if (trustManager instanceof X509TrustManager x509TrustManager) {
+            log.info(">>> TrustManager = {}", trustManager.getClass().getName());
+            if (trustManager instanceof X509ExtendedTrustManager x509TrustManager) {
+                originalTrustManager =  x509TrustManager;
+                log.info(">>> Accepted issuers = {}", x509TrustManager.getAcceptedIssuers().length);
                 for (X509Certificate certificate : x509TrustManager.getAcceptedIssuers()) {
-                    System.out.println( "TRUSTED CA = " + certificate.getSubjectX500Principal() );
+                    log.info(">>> TRUSTED CA = {}", certificate.getSubjectX500Principal());
                 }
             }
         }
@@ -78,7 +88,6 @@ public class RestClientFactory {
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(clientKeyStore, keystorePassword.toCharArray());
 
-
         //TODO: Configure TLS handshake connection
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(keyManagerFactory.getKeyManagers(), trustManagers, null);
@@ -86,7 +95,6 @@ public class RestClientFactory {
                 .create()
                 .setSslContext(sslContext)
                 .build();
-
 
         //TODO: Initialize Connection Pool
         PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder
@@ -121,8 +129,6 @@ public class RestClientFactory {
         //TODO: OAUTH2 Interceptor
         OAuth2ClientHttpRequestInterceptor interceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
         interceptor.setClientRegistrationIdResolver(new RequestAttributeClientRegistrationIdResolver());
-
-        System.out.println(">>> CUSTOM TLS REST CLIENT: " + requestFactory.getClass().getName());
 
         return RestClient.builder()
                 .requestFactory(requestFactory)

@@ -1,9 +1,13 @@
 package com.bff.client.service;
 
+import com.bff.client.configuration.RestClientFactory;
 import com.bff.client.model.Driver;
 import com.bff.client.model.SliceDTO;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
@@ -25,9 +29,14 @@ public class DriverService {
     public String DRIVER_SERVICE_BASE_URL;
 
     @Autowired
+    @Qualifier("driverRestClientBuilder")
     private RestClient.Builder driverRestClientBuilder;
 
+    private static final Logger log = LoggerFactory.getLogger(DriverService.class);
+
     public SliceDTO<Driver> getDrivers(MultiValueMap<String, String> queryParams) {
+        log.info(">>> DRIVER CLIENT USING BUILDER: {}", System.identityHashCode(driverRestClientBuilder));
+
         String uriString = new StringBuilder()
                 .append(DRIVER_SERVICE_BASE_URL)
                 .append("/drivers")

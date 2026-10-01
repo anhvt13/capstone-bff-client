@@ -31,6 +31,9 @@ public class SpringRestClientConfig {
     @LoadBalanced
     public RestClient.Builder driverRestClientBuilder(RestClientFactory factory, OAuth2AuthorizedClientManager authorizedClientManager) throws Exception {
         log.info(">>> CREATING SPRING LOAD-BALANCED REST CLIENT BUILDER");
-        return factory.createSecuredRestClient(authorizedClientManager);
+        RestClient.Builder builder = factory.createSecuredRestClient(authorizedClientManager);
+        log.info(">>> CUSTOM BUILDER CREATED: {}", System.identityHashCode(builder));
+
+        return builder;
     }
 }
