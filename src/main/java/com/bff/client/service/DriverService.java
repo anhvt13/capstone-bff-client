@@ -1,6 +1,5 @@
 package com.bff.client.service;
 
-import com.bff.client.configuration.RestClientFactory;
 import com.bff.client.model.Driver;
 import com.bff.client.model.SliceDTO;
 import jakarta.validation.Valid;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -71,7 +69,8 @@ public class DriverService {
                 .build()
                 .toUri();
 
-        return driverRestClientBuilder.build().get()
+        return driverRestClientBuilder.build()
+                .get()
                 .uri(uri)
                 .attributes(clientRegistrationId(DRIVER_SERVICE_CLIENT))
                 .retrieve()
@@ -89,7 +88,8 @@ public class DriverService {
                 .build()
                 .toUri();
 
-        return driverRestClientBuilder.build().post()
+        return driverRestClientBuilder.build()
+                .post()
                 .uri(uri)
                 .body(driver)
                 .attributes(clientRegistrationId(DRIVER_SERVICE_CLIENT))
@@ -109,10 +109,30 @@ public class DriverService {
                 .build()
                 .toUri();
 
-        driverRestClientBuilder.build().delete()
+        driverRestClientBuilder.build()
+                .delete()
                 .uri(uri)
                 .attributes(clientRegistrationId(DRIVER_SERVICE_CLIENT))
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    public String checkServiceHealth() {
+        String uriString = new StringBuilder()
+                .append(DRIVER_SERVICE_BASE_URL)
+                .append("/actuator/health")
+                .toString();
+
+        URI uri = UriComponentsBuilder
+                .fromUriString(uriString)
+                .build()
+                .toUri();
+
+        return driverRestClientBuilder.build()
+                .get()
+                .uri(uri)
+                .attributes(clientRegistrationId(DRIVER_SERVICE_CLIENT))
+                .retrieve()
+                .body(String.class);
     }
 }

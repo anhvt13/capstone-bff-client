@@ -121,29 +121,36 @@ public class BffController {
         return jwt.getClaims();
     }
 
+    @GetMapping ("/driver/health")
+    public ResponseEntity<String> checkDriverServiceHealth() {
+        log.info("Forwarding request to Driver micro-service for checking service health");
+        return new ResponseEntity<>(driverService.checkServiceHealth(), HttpStatus.OK);
+    }
+
+
     @GetMapping("/drivers")
     public ResponseEntity<SliceDTO<Driver>> getDrivers(@RequestParam MultiValueMap<String, String> queryParams) {
-        log.info("Forwarding request to Driver micro-service");
+        log.info("Forwarding request to Driver micro-service for retrieving list of drivers");
         return new ResponseEntity<>(driverService.getDrivers(queryParams), HttpStatus.OK);
     }
 
     @GetMapping("/driver/{driverId}")
     public ResponseEntity<Driver> getDriver(@PathVariable Integer driverId) {
-        log.info("Forwarding request to Driver micro-service");
+        log.info("Forwarding request to Driver micro-service for retrieving individual driver");
         return new ResponseEntity<>(driverService.getDriver(driverId), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_openid')")
     @PostMapping("/driver")
     public ResponseEntity<Driver> saveDriver(@Valid @RequestBody Driver driver) {
-        log.info("Forward request to Driver micro-service");
+        log.info("Forward request to Driver micro-service for inserting new individual driver");
         return new ResponseEntity<>(driverService.saveDriver(driver), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_openid')")
     @DeleteMapping("/driver/{driverId}")
     public ResponseEntity<Void> saveDriver(@PathVariable Integer driverId) {
-        log.info("Forward request to Driver micro-service");
+        log.info("Forward request to Driver micro-service for deleting an existing driver");
         driverService.deleteDriver(driverId);
         return ResponseEntity.noContent().build();
     }
