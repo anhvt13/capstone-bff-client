@@ -2,18 +2,14 @@ package com.bff.client.controller;
 
 import com.bff.client.model.Driver;
 import com.bff.client.model.ErrorResponse;
-
 import com.bff.client.model.SliceDTO;
 import com.bff.client.service.DriverService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -121,36 +117,36 @@ public class BffController {
         return jwt.getClaims();
     }
 
+    @GetMapping ("/driver/health")
+    public ResponseEntity<Map<String, Object>> checkDriverServiceHealth() {
+        log.info("Forwarding request to Driver micro-service for health checking");
+        return driverService.checkServiceHealth();
+    }
+
     @GetMapping("/drivers")
     public ResponseEntity<SliceDTO<Driver>> getDrivers(@RequestParam MultiValueMap<String, String> queryParams) {
-        log.info("Forwarding request to Driver micro-service");
+        log.info("Forwarding request to Driver micro-service for retrieving list of drivers");
         return new ResponseEntity<>(driverService.getDrivers(queryParams), HttpStatus.OK);
     }
 
     @GetMapping("/driver/{driverId}")
     public ResponseEntity<Driver> getDriver(@PathVariable Integer driverId) {
-        log.info("Forwarding request to Driver micro-service");
+        log.info("Forwarding request to Driver micro-service for retrieving individual driver");
         return new ResponseEntity<>(driverService.getDriver(driverId), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_openid')")
     @PostMapping("/driver")
     public ResponseEntity<Driver> saveDriver(@Valid @RequestBody Driver driver) {
-        log.info("Forward request to Driver micro-service");
+        log.info("Forward request to Driver micro-service for inserting new individual driver");
         return new ResponseEntity<>(driverService.saveDriver(driver), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('SCOPE_openid')")
     @DeleteMapping("/driver/{driverId}")
     public ResponseEntity<Void> saveDriver(@PathVariable Integer driverId) {
-        log.info("Forward request to Driver micro-service");
+        log.info("Forward request to Driver micro-service for deleting an existing driver");
         driverService.deleteDriver(driverId);
         return ResponseEntity.noContent().build();
     }
-
-
-
-
-
-
 }
