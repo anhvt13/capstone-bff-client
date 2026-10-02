@@ -25,6 +25,11 @@ public class DriverService {
     //TODO: Loaded driver-service as OAuth2 Client Registration Id in application properties
     public static final String DRIVER_SERVICE_CLIENT = "driver-service";
 
+    //TODO: Explicit predefined HTTP header for blue/green traffic testing
+    public static final String ECS_BLUE_GREEN_TEST = "x-amzn-ecs-blue-green-test";
+
+    public static final String TRUE = "true";
+
     @Value("${driver.service.base-url}")
     public String DRIVER_SERVICE_BASE_URL;
 
@@ -133,6 +138,7 @@ public class DriverService {
         return driverRestClientBuilder.build()
                 .get()
                 .uri(uri)
+                .header(ECS_BLUE_GREEN_TEST, TRUE)
                 .attributes(clientRegistrationId(DRIVER_SERVICE_CLIENT))
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});

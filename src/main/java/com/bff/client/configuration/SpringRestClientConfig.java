@@ -34,6 +34,14 @@ public class SpringRestClientConfig {
         RestClient.Builder builder = factory.createSecuredRestClient(authorizedClientManager);
         log.info(">>> CUSTOM BUILDER CREATED: {}", System.identityHashCode(builder));
 
+        builder.requestInterceptor((request, body, execution) -> {
+            log.info("=== BFF → DRIVER ===");
+            log.info("URI: {}", request.getURI());
+            log.info("Method: {}", request.getMethod());
+            log.info("Blue/Green Header: {}", request.getHeaders().get("x-amzn-ecs-blue-green-test"));
+            return execution.execute(request, body);
+        });
+
         return builder;
     }
 }
