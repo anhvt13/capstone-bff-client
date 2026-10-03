@@ -1,9 +1,16 @@
 name: ECS BFF Service Deployment
 
 on:
+  # Triggered by git push event at main branch
   push:
     branches:
       - main
+
+  # Supported trigger the deployment manually
+  workflow_dispatch:
+    branches:
+      - main
+
 
 permissions:
   id-token: write
@@ -24,6 +31,10 @@ jobs:
 
     # Generally start with x86/AMD64 GitHub runner
     runs-on: ubuntu-latest
+
+    # Required manually approval
+    environment:
+      name: prod
 
     steps:
       - name: Checkout repository
