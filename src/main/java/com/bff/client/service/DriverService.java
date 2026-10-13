@@ -22,7 +22,7 @@ import static org.springframework.security.oauth2.client.web.client.RequestAttri
 @Service
 public class DriverService {
 
-    //TODO: Loaded driver-service as OAuth2 Client Registration Id in application properties
+    //TODO: Loaded driver-service as authorization-server Id which BFF is registered to
     public static final String DRIVER_SERVICE_CLIENT = "driver-service";
 
     //TODO: Explicit predefined HTTP header for blue/green traffic testing
