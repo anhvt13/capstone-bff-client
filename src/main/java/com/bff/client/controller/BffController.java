@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -126,13 +128,17 @@ public class BffController {
     @GetMapping("/drivers")
     public ResponseEntity<SliceDTO<Driver>> getDrivers(@RequestParam MultiValueMap<String, String> queryParams) {
         log.info("Forwarding request to Driver micro-service for retrieving list of drivers");
-        return new ResponseEntity<>(driverService.getDrivers(queryParams), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK)
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3600)).cachePublic())
+                .body(driverService.getDrivers(queryParams));
     }
 
     @GetMapping("/driver/{driverId}")
     public ResponseEntity<Driver> getDriver(@PathVariable Integer driverId) {
         log.info("Forwarding request to Driver micro-service for retrieving individual driver");
-        return new ResponseEntity<>(driverService.getDriver(driverId), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK)
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3600)).cachePublic())
+                .body(driverService.getDriver(driverId));
     }
 
     @PreAuthorize("hasAuthority('SCOPE_openid')")
